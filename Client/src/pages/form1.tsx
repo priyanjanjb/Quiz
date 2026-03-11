@@ -28,7 +28,10 @@ function Form1() {
   };
 
   const handleNext = () => {
-
+    if (!name.trim()) {   // trim() removes spaces
+    alert("Please enter your name before proceeding.");
+    return; // stop navigation
+  }
     navigate("/form2",{
       state:{
         name,

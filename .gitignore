@@ -1,0 +1,27 @@
+# Root Git Ignore
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+.env
+
+# Build
+dist/
+build/
+
+# Vite
+.vite/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Client
+client/node_modules/
+client/dist/
+client/.env
+
+# Server
+server/node_modules/
+server/.env

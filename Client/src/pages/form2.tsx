@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuiz } from "./QuizStore";
-import audio1 from "../assets/Audio/1.mp3";
+import audio1 from "../assets/Audio/1 .mp3";
 import audio2 from "../assets/Audio/2.mp3";
 import audio3 from "../assets/Audio/3.mp3";
 import audio4 from "../assets/Audio/4.mp3";

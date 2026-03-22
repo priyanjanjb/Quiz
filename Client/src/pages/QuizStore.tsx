@@ -2,11 +2,11 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 
 type QuizState = {
   form1: any;
-  form2: Record<string, string>;
-  form3: Record<string, string>;
-  form4: Record<number, string>;
+  form2: Record<string, any>;
+  form3: Record<string, any>;
   answerType: string;
-  name: string;
+  audioCount: Record<string, number>;
+  timeSpent: Record<string, number>;
 };
 
 const QuizContext = createContext<any>(null);
@@ -16,9 +16,9 @@ export const QuizProvider = ({ children }: { children: ReactNode }) => {
     form1: {},
     form2: {},
     form3: {},
-    form4: {},
     answerType: "",
-    name: "",
+    audioCount: {},
+    timeSpent: {},
   });
 
   return (

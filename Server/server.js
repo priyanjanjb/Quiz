@@ -26,7 +26,9 @@ const responseSchema = new mongoose.Schema({
   name: { type: String, required: true },
   responses: { type: Object, required: true },
   answerType: { type: String },
-  score: { type: Number }, // store score from frontend
+  score: { type: Number },
+  audioCount: { type: Object }, // store audio play counts
+  timeSpent: { type: Object },  // store time spent per form
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -38,13 +40,13 @@ const Response = mongoose.model("Response", responseSchema);
 
 app.post("/api/submit", async (req, res) => {
   try {
-    const { name, responses, answerType, score } = req.body;
+    const { name, responses, answerType, score, audioCount, timeSpent } = req.body;
 
     if (!name || !responses) {
       return res.status(400).json({ message: "Name and responses are required." });
     }
 
-    const newResponse = new Response({ name, responses, answerType, score });
+    const newResponse = new Response({ name, responses, answerType, score, audioCount, timeSpent });
     await newResponse.save();
 
     res.json({ message: "Responses saved successfully", score });

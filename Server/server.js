@@ -15,26 +15,19 @@ app.use(express.json());
 ====================== */
 
 mongoose.connect(process.env.MONGO_URI)
-.then(()=>console.log("MongoDB Connected"))
-.catch(err=>console.log(err));
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => console.log(err));
 
 /* ======================
    Schema
 ====================== */
 
 const responseSchema = new mongoose.Schema({
-
-  name:String,
-
-  responses:Object,
-
-  answerType:String,
-
-  createdAt:{
-    type:Date,
-    default:Date.now
-  }
-
+  name: { type: String, required: true },
+  responses: { type: Object, required: true },
+  answerType: { type: String },
+  score: { type: Number }, // store score from frontend
+  createdAt: { type: Date, default: Date.now }
 });
 
 const Response = mongoose.model("Response", responseSchema);
@@ -43,28 +36,22 @@ const Response = mongoose.model("Response", responseSchema);
    API
 ====================== */
 
-app.post("/api/submit", async(req,res)=>{
+app.post("/api/submit", async (req, res) => {
+  try {
+    const { name, responses, answerType, score } = req.body;
 
-  try{
+    if (!name || !responses) {
+      return res.status(400).json({ message: "Name and responses are required." });
+    }
 
-    const newResponse = new Response(req.body);
-
+    const newResponse = new Response({ name, responses, answerType, score });
     await newResponse.save();
 
-    res.json({
-      message:"Responses saved successfully"
-    });
-
-  }catch(error){
-
+    res.json({ message: "Responses saved successfully", score });
+  } catch (error) {
     console.error(error);
-
-    res.status(500).json({
-      message:"Server error"
-    });
-
+    res.status(500).json({ message: "Server error" });
   }
-
 });
 
 /* ======================
@@ -72,9 +59,4 @@ app.post("/api/submit", async(req,res)=>{
 ====================== */
 
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, ()=>{
-
-  console.log(`Server running on port ${PORT}`);
-
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

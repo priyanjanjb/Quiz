@@ -18,9 +18,65 @@ function Form3() {
     setAnswers(prev => ({ ...prev, [groupKey]: value }));
   };
 
-  const handleNext = () => {
+  const calculateScore = () => {
+    const correctAnswers: Record<string, string> = {
+      "1.1": "あ ⬈ め",
+      "1.2": "あ ⬊ め",
+      "2.1": "は ⬊ し",
+      "2.2": "は ⬈ し",
+      "3.1": "か ⬊ み",
+      "3.2": "か ⬈ み",
+      "4.1": "さ ⬈ け",
+      "4.2": "さ ⬊ け",
+      "5.1": "か ⬊ き",
+      "5.2": "か ⬈ き",
+    };
+
+    const allAnswers = {
+      ...quiz.form1,
+      ...quiz.form2,
+      ...quiz.form3,
+      ...answers,
+    };
+
+    let score = 0;
+    Object.keys(correctAnswers).forEach(key => {
+      if (allAnswers[key] === correctAnswers[key]) score++;
+    });
+    return score;
+  };
+
+  const handleSubmit = async () => {
     setQuiz((prev: any) => ({ ...prev, form3: answers, answerType }));
-    navigate("/form4");
+
+    const allResponses = {
+      ...quiz.form1,
+      ...quiz.form2,
+      ...quiz.form3,
+      ...answers
+    };
+
+    const score = calculateScore();
+
+    const payload = {
+      name: quiz.form1.name,
+      responses: allResponses,
+      answerType,
+      score
+    };
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      alert(`Score: ${score}\n${data.message}`);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleBack = () => {
@@ -31,7 +87,7 @@ function Form3() {
   return (
     <div className="min-h-screen bg-teal-700 flex items-center justify-center">
       <div className="w-full max-w-4xl bg-[#a9c2c9] rounded-[60px] p-10">
-        <h1 className="text-center text-5xl text-white mb-6">Audio Test 02</h1>
+        
 
         {questions.map(q => (
           <div key={q.id} className="flex flex-col items-center gap-4">
@@ -67,7 +123,13 @@ function Form3() {
           <div className="flex flex-col items-center gap-2">
             {["consciously","unconsciously","randomly","unintentionally"].map(type => (
               <label key={type}>
-                <input type="radio" name="type" value={type} checked={answerType===type} onChange={e => setAnswerType(e.target.value)} />
+                <input
+                  type="radio"
+                  name="type"
+                  value={type}
+                  checked={answerType===type}
+                  onChange={e => setAnswerType(e.target.value)}
+                />
                 {type}
               </label>
             ))}
@@ -76,7 +138,7 @@ function Form3() {
 
         <div className="flex justify-between mt-12">
           <button onClick={handleBack} className="bg-gray-300 px-12 py-3 rounded-full">Back</button>
-          <button onClick={handleNext} className="bg-gray-300 px-12 py-3 rounded-full">Next</button>
+          <button onClick={handleSubmit} className="bg-blue-600 text-white px-12 py-3 rounded-full">Submit</button>
         </div>
       </div>
     </div>

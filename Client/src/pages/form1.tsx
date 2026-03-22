@@ -1,43 +1,40 @@
 import { useState, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuiz } from "./QuizStore";
 
 function Form1() {
   const navigate = useNavigate();
+  const { quiz, setQuiz } = useQuiz();
 
   const [formData, setFormData] = useState({
-    name: "",
-    year: "",
-    jlpt: "",
-    studyJapanese: "",
-    sake: "",
-    kumo: "",
-    kami: "",
-    hashi: "",
-    similarWords: "",
-    pitchKnowledge: "",
-    pitchDifficulty: "",
-    reasons: [] as string[],
-    otherReason: "",
-    trainingInterest: ""
+    name: quiz.form1?.name || "",
+    year: quiz.form1?.year || "",
+    jlpt: quiz.form1?.jlpt || "",
+    studyJapanese: quiz.form1?.studyJapanese || "",
+    sake: quiz.form1?.sake || "",
+    kumo: quiz.form1?.kumo || "",
+    kami: quiz.form1?.kami || "",
+    hashi: quiz.form1?.hashi || "",
+    similarWords: quiz.form1?.similarWords || "",
+    pitchKnowledge: quiz.form1?.pitchKnowledge || "",
+    pitchDifficulty: quiz.form1?.pitchDifficulty || "",
+    reasons: quiz.form1?.reasons || [] as string[],
+    otherReason: quiz.form1?.otherReason || "",
+    trainingInterest: quiz.form1?.trainingInterest || ""
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // ✅ Checkbox handler (Q7)
   const handleCheckbox = (value: string) => {
-    setFormData((prev) => {
+    setFormData(prev => {
       const exists = prev.reasons.includes(value);
       return {
         ...prev,
         reasons: exists
-          ? prev.reasons.filter((r) => r !== value)
+          ? prev.reasons.filter((r: string) => r !== value)
           : [...prev.reasons, value]
       };
     });
@@ -48,16 +45,27 @@ function Form1() {
       alert("Fill name and academic year");
       return;
     }
-
-    console.log(formData);
-
+    setQuiz((prev: any) => ({ ...prev, form1: formData }));
     navigate("/form2");
   };
+
+  const handleBack = () => {
+    setQuiz((prev: any) => ({ ...prev, form1: formData }));
+    navigate(-1); // go back
+  };
+
+  const reasonsList = [
+    " JLPT/NAT විභාග පමණක් අරමුණු කරමින් ඉගැන්වීම",
+    " පාසලේ දී අවධානය ලබා නොදීම",
+    " විශ්ව විද්‍යාලයේ දී අවධානය ලබා නොදීම",
+    " අක්ෂර ලිවීමට පමණක් අවධානය යොමු කිරීම",
+    " ගුරුවරුන් නිවැරදිව ඉගැන්වීම් සිදු නොකිරීම",
+    " Pitch Accent සඳහා විශේෂ ඉගැන්වීමක් සිදු නොකිරීම"
+  ];
 
   return (
     <div className="min-h-screen bg-teal-700 flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-3xl rounded-2xl shadow-lg p-6 space-y-6">
-
         <h1 className="text-2xl font-bold text-center">QUESTIONNAIRE</h1>
 
         {/* Name + Year */}
@@ -68,7 +76,6 @@ function Form1() {
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
-
         <input
           name="year"
           placeholder="අධ්‍යයන වර්ෂය"
@@ -76,7 +83,11 @@ function Form1() {
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
-        <h3 className="text-2xl font-bold text-center">පර්යේෂණ අරමුණු සඳහා පහත ඇති සියලුම ප්‍රශ්නවලට අවංකව පිළිතුරු සපයන්න. </h3>
+
+        <h3 className="text-2xl font-bold text-center">
+          පර්යේෂණ අරමුණු සඳහා පහත ඇති සියලුම ප්‍රශ්නවලට අවංකව පිළිතුරු සපයන්න.
+        </h3>
+
         {/* Q1 JLPT */}
         <div>
           <p className="font-medium">1. JLPT මට්ටම</p>
@@ -86,6 +97,7 @@ function Form1() {
                 type="radio"
                 name="jlpt"
                 value={lvl}
+                checked={formData.jlpt === lvl} // ✅ bind
                 onChange={handleChange}
               /> {lvl}
             </label>
@@ -101,29 +113,48 @@ function Form1() {
                 type="radio"
                 name="studyJapanese"
                 value={opt}
+                checked={formData.studyJapanese === opt} // ✅ bind
                 onChange={handleChange}
               /> {opt}
             </label>
           ))}
         </div>
 
-        {/* Q3 */}
-        <div>
-          <p>3. පහත සඳහන් ජපන් වචන වල ඔබ දන්නා තේරුම් ලියන්න.</p>
+        {/* Q3 Text Inputs */}
+<div>
+  <p>3. පහත සඳහන් ජපන් වචන වල ඔබ දන්නා තේරුම් ලියන්න.</p>
 
-          <input name="sake" placeholder="さけ" onChange={handleChange} className="w-full border p-2 mb-2"/>
-          <input name="kumo" placeholder="くも" onChange={handleChange} className="w-full border p-2 mb-2"/>
-          <input name="kami" placeholder="かみ" onChange={handleChange} className="w-full border p-2 mb-2"/>
-          <input name="hashi" placeholder="はし" onChange={handleChange} className="w-full border p-2"/>
-        </div>
+  {[
+    { key: "sake", label: " さけ" },
+    { key: "kumo", label: " くも" },
+    { key: "kami", label: " かみ" },
+    { key: "hashi", label: "はし" }
+  ].map(({ key, label}) => (
+    <div key={key} className="mb-4">
+      <label className="block font-medium mb-1">{label}</label>
+      <input
+        name={key}
+        value={formData[key as keyof typeof formData]}
+        onChange={handleChange}
+        className="w-full border p-2 rounded"
+      />
+    </div>
+  ))}
+</div>
 
         {/* Q4 */}
         <div>
           <p>4. ඇතැම් ජපන් වචන උච්චාරණය එකම වගේ වුණත් අර්තය වෙනස් වන අවස්තා ඇත.      
-(උදා; හෂි - චොප්ස්ටික්ස් , පාලම) ඔබට මෙවැනි වචන හමුවී තිබෙනවාද? </p>
+          (උදා; හෂි - චොප්ස්ටික්ස් , පාලම) ඔබට මෙවැනි වචන හමුවී තිබෙනවාද? </p>
           {[" ඔව්", " නැත"].map((opt) => (
             <label key={opt} className="block">
-              <input type="radio" name="similarWords" value={opt} onChange={handleChange}/> {opt}
+              <input
+                type="radio"
+                name="similarWords"
+                value={opt}
+                checked={formData.similarWords === opt} // ✅ bind
+                onChange={handleChange}
+              /> {opt}
             </label>
           ))}
         </div>
@@ -133,7 +164,13 @@ function Form1() {
           <p>5. ජපන් භාෂාවේ ස්වර උච්චාරණය :ඡසඑජය ්ජජැබඑ* පිළිබඳ සංකල්පය ගැන ඔබ කවදා හෝ අසා තිබේද?</p>
           {[" ඔව්", " නැත"].map((opt) => (
             <label key={opt} className="block">
-              <input type="radio" name="pitchKnowledge" value={opt} onChange={handleChange}/> {opt}
+              <input
+                type="radio"
+                name="pitchKnowledge"
+                value={opt}
+                checked={formData.pitchKnowledge === opt} // ✅ bind
+                onChange={handleChange}
+              /> {opt}
             </label>
           ))}
         </div>
@@ -143,34 +180,33 @@ function Form1() {
           <p>6. ඔබට ජපන් භාෂාවේ පවතින ස්වර උච්චාරණ මඟහැරී ඇති බව සිතනවාද?</p>
           {["ඔව්", "නැත"].map((opt) => (
             <label key={opt} className="block">
-              <input type="radio" name="pitchDifficulty" value={opt} onChange={handleChange}/> {opt}
+              <input
+                type="radio"
+                name="pitchDifficulty"
+                value={opt}
+                checked={formData.pitchDifficulty === opt} // ✅ bind
+                onChange={handleChange}
+              /> {opt}
             </label>
           ))}
         </div>
 
-        {/* Q7 */}
+        {/* Q7 Checkboxes */}
         <div>
           <p>7. ඔබට ජපන් භාෂාවේ පවතින ස්වර උච්චාරණ මඟහැරී ඇති බව සිතනවාද?</p>
-
-          {[
-            " JLPT/NAT විභාග පමණක් අරමුණු කරමින් ඉගැන්වීම",
-            " පාසලේ දී අවධානය ලබා නොදීම",
-            " විශ්ව විද්‍යාලයේ දී අවධානය ලබා නොදීම",
-            " අක්ෂර ලිවීමට පමණක් අවධානය යොමු කිරීම",
-            " ගුරුවරුන් නිවැරදිව ඉගැන්වීම් සිදු නොකිරීම",
-            " Pitch Accent සඳහා විශේෂ ඉගැන්වීමක් සිදු නොකිරීම"
-          ].map((reason) => (
+          {reasonsList.map((reason) => (
             <label key={reason} className="block">
               <input
                 type="checkbox"
+                checked={formData.reasons.includes(reason)} // ✅ bind
                 onChange={() => handleCheckbox(reason)}
               /> {reason}
             </label>
           ))}
-
           <input
             placeholder="වෙනත් (කරුණාකර සඳහන් කරන්න)"
             name="otherReason"
+            value={formData.otherReason} // ✅ bind
             onChange={handleChange}
             className="w-full border p-2 mt-2"
           />
@@ -179,22 +215,30 @@ function Form1() {
         {/* Q8 */}
         <div>
           <p>8. "උච්චාරණය එක හා සමාන වුවත් අර්ථය වෙනස් වචන" - නිවැරදිව උච්චාරණය කිරීමට, 
-ඇහුම්කන්දීමට පුහුණුවීම මඟින් ජපන් භාෂා දැනුම වැඩි දියුණු කරගැනීමට</p>
+          ඇහුම්කන්දීමට පුහුණුවීම මඟින් ජපන් භාෂා දැනුම වැඩි දියුණු කරගැනීමට</p>
           {["කැමතියි", "අකමැතියි", "ඒ පිළිබඳ දැනුම පවතින බැවින් මා හට පුහුණුවක් අවශ්‍ය නැත."].map((opt) => (
             <label key={opt} className="block">
-              <input type="radio" name="trainingInterest" value={opt} onChange={handleChange}/> {opt}
+              <input
+                type="radio"
+                name="trainingInterest"
+                value={opt}
+                checked={formData.trainingInterest === opt} // ✅ bind
+                onChange={handleChange}
+              /> {opt}
             </label>
           ))}
         </div>
 
-        {/* NEXT */}
-        <button
-          onClick={handleNext}
-          className="w-full bg-blue-600 text-white py-2 rounded"
-        >
-          Next
-        </button>
-
+        {/* Buttons */}
+        <div className="flex justify-between mt-4">
+          
+          <button
+            onClick={handleNext}
+            className="bg-blue-600 text-white px-6 py-2 rounded"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
